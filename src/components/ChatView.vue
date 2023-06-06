@@ -29,8 +29,8 @@
 				<div class="drop-hint">
 					<div class="drop-hint__icon"
 						:class="{
-							'icon-upload' : !isGuest && !isReadOnly,
-							'icon-user' : isGuest,
+							'icon-upload' : !actorIsGuest && !isReadOnly,
+							'icon-user' : actorIsGuest,
 							'icon-error' : isReadOnly}" />
 					<h2 class="drop-hint__text">
 						{{ dropHintText }}
@@ -56,6 +56,7 @@ import MessagesList from './MessagesList/MessagesList.vue'
 import NewMessage from './NewMessage/NewMessage.vue'
 
 import { CONVERSATION } from '../constants.js'
+import { useActorStore } from '../stores/actorStore.js'
 
 export default {
 
@@ -73,6 +74,14 @@ export default {
 		},
 	},
 
+	setup() {
+		const { actorIsGuest } = useActorStore()
+
+		return {
+			actorIsGuest,
+		}
+	},
+
 	data() {
 		return {
 			isDraggingOver: false,
@@ -81,11 +90,8 @@ export default {
 	},
 
 	computed: {
-		isGuest() {
-			return this.$store.getters.getActorType() === 'guests'
-		},
 		dropHintText() {
-			if (this.isGuest) {
+			if (this.actorIsGuest) {
 				return t('spreed', 'You need to be logged in to upload files')
 			} else if (this.isReadOnly) {
 				return t('spreed', 'This conversation is read-only')
@@ -132,7 +138,7 @@ export default {
 			// Restore non dragover state
 			this.isDraggingOver = false
 			// Stop the executin if the user is a guest
-			if (this.isGuest || this.isReadOnly) {
+			if (this.actorIsGuest || this.isReadOnly) {
 				return
 			}
 			// Get the files from the event

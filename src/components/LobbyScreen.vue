@@ -43,7 +43,7 @@
 					:autolink="true" />
 			</p>
 		</div>
-		<SetGuestUsername v-if="currentUserIsGuest" />
+		<SetGuestUsername v-if="actorIsGuest" />
 	</div>
 </template>
 
@@ -55,6 +55,8 @@ import NcRichText from '@nextcloud/vue/dist/Components/NcRichText.js'
 import Lobby from './missingMaterialDesignIcons/Lobby.vue'
 import SetGuestUsername from './SetGuestUsername.vue'
 
+import { useActorStore } from '../stores/actorStore.js'
+
 export default {
 
 	name: 'LobbyScreen',
@@ -63,6 +65,14 @@ export default {
 		SetGuestUsername,
 		NcRichText,
 		Lobby,
+	},
+
+	setup() {
+		const { actorIsGuest } = useActorStore()
+
+		return {
+			actorIsGuest,
+		}
 	},
 
 	computed: {
@@ -101,11 +111,6 @@ export default {
 
 		message() {
 			return t('spreed', 'This meeting is scheduled for {startTime}', { startTime: this.startTime })
-		},
-
-		// Determines whether the current user is a guest user
-		currentUserIsGuest() {
-			return !this.$store.getters.getUserId()
 		},
 	},
 

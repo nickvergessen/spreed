@@ -31,6 +31,8 @@
 import { encodePath } from '@nextcloud/paths'
 import { generateRemoteUrl } from '@nextcloud/router'
 
+import { useActorStore } from '../../../../../stores/actorStore.js'
+
 export default {
 	name: 'AudioPlayer',
 
@@ -64,6 +66,15 @@ export default {
 		},
 	},
 
+	setup() {
+		const { actorIsGuest, userId } = useActorStore()
+
+		return {
+			actorIsGuest,
+			userId
+		}
+	},
+
 	computed: {
 		internalAbsolutePath() {
 			if (this.path.startsWith('/')) {
@@ -76,13 +87,12 @@ export default {
 			if (this.localUrl) {
 				return this.localUrl
 			}
-			const userId = this.$store.getters.getUserId()
-			if (userId === null) {
+			if (this.actorIsGuest) {
 				// guest mode, use public link download URL
 				return this.link + '/download/' + encodePath(this.name)
 			} else {
 				// use direct DAV URL
-				return generateRemoteUrl(`dav/files/${userId}`) + encodePath(this.internalAbsolutePath)
+				return generateRemoteUrl(`dav/files/${this.userId}`) + encodePath(this.internalAbsolutePath)
 			}
 		},
 	},

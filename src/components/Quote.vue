@@ -34,7 +34,7 @@ components.
 				class="quote__main__author"
 				role="heading"
 				aria-level="4">
-				{{ getDisplayName }}
+				{{ displayName }}
 			</div>
 			<div v-if="isFileShareMessage"
 				class="quote__main__text">
@@ -69,6 +69,7 @@ import DefaultParameter from './MessagesList/MessagesGroup/Message/MessagePart/D
 import FilePreview from './MessagesList/MessagesGroup/Message/MessagePart/FilePreview.vue'
 
 import { EventBus } from '../services/EventBus.js'
+import { useActorStore } from '../stores/actorStore.js'
 
 export default {
 	name: 'Quote',
@@ -140,13 +141,22 @@ export default {
 			required: true,
 		},
 	},
+
+	setup() {
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+		}
+	},
+
 	computed: {
 		/**
 		 * The message actor display name.
 		 *
 		 * @return {string}
 		 */
-		getDisplayName() {
+		displayName() {
 			const displayName = this.actorDisplayName.trim()
 
 			if (displayName === '' && this.actorType === 'guests') {
@@ -161,8 +171,8 @@ export default {
 		},
 
 		isOwnMessageQuoted() {
-			return this.actorId === this.$store.getters.getActorId()
-				&& this.actorType === this.$store.getters.getActorType()
+			return this.actorId === this.actorStore.actorId
+				&& this.actorType === this.actorStore.actorType
 		},
 
 		isFileShareMessage() {

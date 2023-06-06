@@ -24,7 +24,7 @@
 		:class="{ 'icon-loading': loading, 'in-call': isInCall }"
 		app-name="talk"
 		@shortkey.native="handleAppSearch">
-		<LeftSidebar v-if="getUserId && !isFullscreen" />
+		<LeftSidebar v-if="actorStore.userId && !isFullscreen" />
 		<NcAppContent>
 			<router-view />
 		</NcAppContent>
@@ -118,10 +118,6 @@ export default {
 			return this.$store.getters.isFullscreen()
 		},
 
-		getUserId() {
-			return this.$store.getters.getUserId()
-		},
-
 		isSendingMessages() {
 			return this.$store.getters.isSendingMessages
 		},
@@ -145,8 +141,8 @@ export default {
 			conversationList.forEach(conversation => {
 				lastMessage[conversation.token] = 0
 				if (conversation.lastMessage) {
-					const currentActorIsAuthor = conversation.lastMessage.actorType === this.$store.getters.getActorType()
-						&& conversation.lastMessage.actorId === this.$store.getters.getActorId()
+					const currentActorIsAuthor = conversation.lastMessage.actorType === this.actorStore.actorType
+						&& conversation.lastMessage.actorId === this.actorStore.actorId
 					if (currentActorIsAuthor) {
 						// Set a special value when the actor is the author so we can skip it.
 						// Can't use 0 though because hidden commands result in 0
@@ -333,7 +329,7 @@ export default {
 
 					await this.$store.dispatch('joinCall', {
 						token: params.token,
-						participantIdentifier: this.$store.getters.getParticipantIdentifier(),
+						participantIdentifier: this.actorStore.getParticipantIdentifier(),
 						flags,
 					})
 

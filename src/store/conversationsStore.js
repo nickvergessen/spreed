@@ -62,6 +62,7 @@ import {
 	startCallRecording,
 	stopCallRecording,
 } from '../services/recordingService.js'
+import { useActorStore } from '../stores/actorStore.js'
 
 const DUMMY_CONVERSATION = {
 	token: '',
@@ -209,6 +210,7 @@ const actions = {
 	 * @param {object} conversation the conversation;
 	 */
 	addConversation(context, conversation) {
+		const { userId, displayName } = useActorStore()
 		context.commit('addConversation', conversation)
 
 		if (conversation.type === CONVERSATION.TYPE.ONE_TO_ONE && conversation.status) {
@@ -222,8 +224,8 @@ const actions = {
 		}
 
 		let currentUser = {
-			uid: context.getters.getUserId(),
-			displayName: context.getters.getDisplayName(),
+			uid: userId,
+			displayName,
 		}
 
 		// Fallback to getCurrentUser() only if it has not been set yet (as

@@ -208,6 +208,7 @@ import { CALL, VIRTUAL_BACKGROUND } from '../../constants.js'
 import { devices } from '../../mixins/devices.js'
 import isInLobby from '../../mixins/isInLobby.js'
 import BrowserStorage from '../../services/BrowserStorage.js'
+import { useActorStore } from '../../stores/actorStore.js'
 import { localMediaModel } from '../../utils/webrtc/index.js'
 
 export default {
@@ -241,8 +242,15 @@ export default {
 	mixins: [devices, isInLobby],
 
 	setup() {
+		const { actorId, userId, displayName } = useActorStore()
 		const isInCall = useIsInCall()
-		return { isInCall }
+
+		return {
+			actorId,
+			userId,
+			displayName,
+			isInCall,
+		}
 	},
 
 	data() {
@@ -262,24 +270,16 @@ export default {
 			return this.$store.getters.getMainContainerSelector()
 		},
 
-		displayName() {
-			return this.$store.getters.getDisplayName()
-		},
-
 		guestName() {
 			return this.$store.getters.getGuestName(
 				this.$store.getters.getToken(),
-				this.$store.getters.getActorId(),
+				this.actorId,
 			)
 		},
 
 		firstLetterOfGuestName() {
 			const customName = this.guestName !== t('spreed', 'Guest') ? this.guestName : '?'
 			return customName.charAt(0)
-		},
-
-		userId() {
-			return this.$store.getters.getUserId()
 		},
 
 		token() {

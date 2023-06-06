@@ -101,6 +101,7 @@ import isInLobby from '../../mixins/isInLobby.js'
 import participant from '../../mixins/participant.js'
 import BrowserStorage from '../../services/BrowserStorage.js'
 import { EventBus } from '../../services/EventBus.js'
+import { useActorStore } from '../../stores/actorStore.js'
 
 export default {
 	name: 'CallButton',
@@ -146,8 +147,13 @@ export default {
 	},
 
 	setup() {
+		const actorStore = useActorStore()
 		const isInCall = useIsInCall()
-		return { isInCall }
+
+		return {
+			actorStore,
+			isInCall,
+		}
 	},
 
 	data() {
@@ -301,7 +307,7 @@ export default {
 			})
 			await this.$store.dispatch('joinCall', {
 				token: this.token,
-				participantIdentifier: this.$store.getters.getParticipantIdentifier(),
+				participantIdentifier: this.actorStore.getParticipantIdentifier(),
 				flags,
 				silent: this.hasCall ? true : this.silentCall,
 			})
@@ -325,7 +331,7 @@ export default {
 			})
 			await this.$store.dispatch('leaveCall', {
 				token: this.token,
-				participantIdentifier: this.$store.getters.getParticipantIdentifier(),
+				participantIdentifier: this.actorStore.getParticipantIdentifier(),
 				all: endMeetingForAll,
 			})
 			this.loading = false

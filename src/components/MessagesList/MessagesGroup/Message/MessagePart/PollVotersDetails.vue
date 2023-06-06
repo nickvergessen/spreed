@@ -29,7 +29,7 @@
 					<AvatarWrapper v-for="(item, index) in details.slice(0, 8)"
 						:id="item.actorId"
 						:key="index"
-						:name="getDisplayName(item)"
+						:name="displayName(item)"
 						:source="item.actorType"
 						small
 						condensed
@@ -43,12 +43,12 @@
 				:key="index"
 				class="poll-voters-details__list-item">
 				<AvatarWrapper :id="item.actorId"
-					:name="getDisplayName(item)"
+					:name="displayName(item)"
 					:source="item.actorType"
 					small
 					disable-menu />
 				<p class="poll-voters-details__display-name">
-					{{ getDisplayName(item) }}
+					{{ displayName(item) }}
 				</p>
 			</div>
 		</div>
@@ -81,7 +81,7 @@ export default {
 	},
 
 	methods: {
-		getDisplayName(item) {
+		displayName(item) {
 			if (item.actorDisplayName === '' && item.actorType === ATTENDEE.ACTOR_TYPE.GUESTS) {
 				return t('spreed', 'Guest')
 			}

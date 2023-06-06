@@ -92,6 +92,7 @@ import { imagePath, generateUrl } from '@nextcloud/router'
 import { VIRTUAL_BACKGROUND } from '../../constants.js'
 import BrowserStorage from '../../services/BrowserStorage.js'
 import client from '../../services/DavClient.js'
+import { useActorStore } from '../../stores/actorStore.js'
 import { findUniquePath } from '../../utils/fileUpload.js'
 
 const canUploadBackgrounds = getCapabilities()?.spreed?.config?.call?.['can-upload-background']
@@ -120,7 +121,10 @@ export default {
 	emits: ['update-background'],
 
 	setup() {
+		const actorStore = useActorStore()
+
 		return {
+			actorStore,
 			canUploadBackgrounds,
 			predefinedBackgrounds,
 		}
@@ -154,12 +158,12 @@ export default {
 	async mounted() {
 		this.loadBackground()
 
-		if (this.$store.getters.getUserId() === null) {
+		if (this.actorStore.actorIsGuest) {
 			console.debug('Skip Talk backgrounds folder check and setup for participants that are not logged in')
 			return
 		}
 
-		const userRoot = '/files/' + this.$store.getters.getUserId()
+		const userRoot = '/files/' + this.actorStore.userId
 		const relativeBackgroundsFolderPath = this.$store.getters.getAttachmentFolder() + '/Backgrounds'
 		const absoluteBackgroundsFolderPath = userRoot + relativeBackgroundsFolderPath
 
@@ -205,7 +209,7 @@ export default {
 			event.target.value = ''
 
 			// userRoot path
-			const userRoot = '/files/' + this.$store.getters.getUserId()
+			const userRoot = '/files/' + this.actorStore.userId
 
 			const filePath = this.$store.getters.getAttachmentFolder() + '/Backgrounds/' + file.name
 

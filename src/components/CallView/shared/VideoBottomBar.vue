@@ -116,6 +116,7 @@ import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
 import Tooltip from '@nextcloud/vue/dist/Directives/Tooltip.js'
 
 import { PARTICIPANT } from '../../../constants.js'
+import { useActorStore } from '../../../stores/actorStore.js'
 import { ConnectionState } from '../../../utils/webrtc/models/CallParticipantModel.js'
 
 export default {
@@ -186,6 +187,14 @@ export default {
 		},
 	},
 
+	setup() {
+		const { actorIsGuest } = useActorStore()
+
+		return {
+			actorIsGuest,
+		}
+	},
+
 	computed: {
 		connectionStateFailedNoRestart() {
 			return this.model.attributes.connectionState === ConnectionState.FAILED_NO_RESTART
@@ -248,9 +257,7 @@ export default {
 		// Moderator rights
 		participantType() {
 			return this.$store.getters.conversation(this.token)?.participantType
-				|| (this.$store.getters.getUserId() !== null
-					? PARTICIPANT.TYPE.USER
-					: PARTICIPANT.TYPE.GUEST)
+				|| (this.actorIsGuest ? PARTICIPANT.TYPE.GUEST : PARTICIPANT.TYPE.USER)
 		},
 		canFullModerate() {
 			return this.participantType === PARTICIPANT.TYPE.OWNER || this.participantType === PARTICIPANT.TYPE.MODERATOR

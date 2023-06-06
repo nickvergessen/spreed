@@ -49,6 +49,7 @@
 import NcAvatar from '@nextcloud/vue/dist/Components/NcAvatar.js'
 
 import { ATTENDEE } from '../../../constants.js'
+import { useActorStore } from '../../../stores/actorStore.js'
 
 export default {
 	name: 'AuthorAvatar',
@@ -68,6 +69,14 @@ export default {
 			type: String,
 			required: true,
 		},
+	},
+
+	setup() {
+		const { actorIsGuest } = useActorStore()
+
+		return {
+			actorIsGuest,
+		}
 	},
 
 	computed: {
@@ -101,7 +110,7 @@ export default {
 			}
 			// disable the menu if accessing the conversation as guest
 			// or the message sender is a bridged user
-			return this.$store.getters.getActorType() === 'guests' || this.authorType === ATTENDEE.ACTOR_TYPE.BRIDGED
+			return this.actorIsGuest || this.authorType === ATTENDEE.ACTOR_TYPE.BRIDGED
 		},
 	},
 }

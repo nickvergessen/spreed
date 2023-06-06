@@ -194,6 +194,7 @@ import Forwarder from './Forwarder.vue'
 import { PARTICIPANT, CONVERSATION, ATTENDEE } from '../../../../../constants.js'
 import { EventBus } from '../../../../../services/EventBus.js'
 import { copyConversationLinkToClipboard } from '../../../../../services/urlService.js'
+import { useActorStore } from '../../../../../stores/actorStore.js'
 
 // Keep version in sync with @nextcloud/vue in case of issues
 
@@ -374,6 +375,14 @@ export default {
 
 	emits: ['delete', 'update:isActionMenuOpen', 'update:isEmojiPickerOpen', 'update:isReactionsMenuOpen', 'update:isForwarderOpen', 'show-translate-dialog'],
 
+	setup() {
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+		}
+	},
+
 	data() {
 		return {
 			frequentlyUsedEmojis: [],
@@ -397,7 +406,7 @@ export default {
 			return (moment(this.timestamp * 1000).add(6, 'h')) > moment()
 				&& (this.messageType === 'comment' || this.messageType === 'voice-message')
 				&& !this.isDeleting
-				&& (this.isMyMsg
+				&& (this.isOwnMessage
 					|| (this.conversation.type !== CONVERSATION.TYPE.ONE_TO_ONE
 						&& this.conversation.type !== CONVERSATION.TYPE.ONE_TO_ONE_FORMER
 						&& (this.participant.participantType === PARTICIPANT.TYPE.OWNER
@@ -408,9 +417,9 @@ export default {
 			return this.isReplyable
 				&& (this.conversation.type === CONVERSATION.TYPE.PUBLIC
 					|| this.conversation.type === CONVERSATION.TYPE.GROUP)
-				&& !this.isMyMsg
+				&& !this.isOwnMessage
 				&& this.actorType === ATTENDEE.ACTOR_TYPE.USERS
-				&& this.$store.getters.getActorType() === ATTENDEE.ACTOR_TYPE.USERS
+				&& this.actorStore.actorType === ATTENDEE.ACTOR_TYPE.USERS
 		},
 
 		messageActions() {
@@ -428,13 +437,9 @@ export default {
 			return this.message === '{file}' && this.messageParameters?.file
 		},
 
-		isCurrentGuest() {
-			return this.$store.getters.getActorType() === 'guests'
-		},
-
-		isMyMsg() {
-			return this.actorId === this.$store.getters.getActorId()
-				&& this.actorType === this.$store.getters.getActorType()
+		isOwnMessage() {
+			return this.actorId === this.actorStore.actorId
+				&& this.actorType === this.actorStore.actorType
 		},
 
 		isConversationReadOnly() {
@@ -452,7 +457,7 @@ export default {
 		},
 
 		canForwardMessage() {
-			return !this.isCurrentGuest
+			return !this.actorStore.actorIsGuest
 				&& !this.isFileShare
 				&& !this.isDeletedMessage
 				&& !this.isPollMessage
@@ -505,7 +510,7 @@ export default {
 
 		handleReactionClick(selectedEmoji) {
 			// Add reaction only if user hasn't reacted yet
-			if (!this.$store.getters.userHasReacted(this.$store.getters.getActorType(), this.$store.getters.getActorId(), this.token, this.messageObject.id, selectedEmoji)) {
+			if (!this.$store.getters.userHasReacted(this.actorStore.actorType, this.actorStore.actorId, this.token, this.messageObject.id, selectedEmoji)) {
 				this.$store.dispatch('addReactionToMessage', {
 					token: this.token,
 					messageId: this.messageObject.id,

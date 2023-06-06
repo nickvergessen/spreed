@@ -45,6 +45,8 @@ import escapeHtml from 'escape-html'
 
 import AvatarWrapper from '../AvatarWrapper/AvatarWrapper.vue'
 
+import { useActorStore } from '../../stores/actorStore.js'
+
 export default {
 	name: 'NewMessageTypingIndicator',
 	components: { AvatarWrapper },
@@ -59,19 +61,25 @@ export default {
 		},
 	},
 
-	computed: {
-		isGuest() {
-			return this.$store.getters.getActorType() === 'guests'
-		},
+	setup() {
+		const { actorId, actorType, actorIsGuest } = useActorStore()
 
+		return {
+			actorId,
+			actorType,
+			actorIsGuest,
+		}
+	},
+
+	computed: {
 		externalTypingSignals() {
 			return this.$store.getters.externalTypingSignals(this.token)
 		},
 
 		typingParticipants() {
 			return this.$store.getters.participantsListTyping(this.token).filter(participant => {
-				return participant.actorType !== this.$store.getters.getActorType()
-					|| participant.actorId !== this.$store.getters.getActorId()
+				return participant.actorType !== this.actorType
+					|| participant.actorId !== this.actorId
 			})
 		},
 
@@ -84,13 +92,13 @@ export default {
 		},
 
 		showIndicatorMessage() {
-			return this.isGuest
+			return this.actorIsGuest
 				? !!this.externalTypingSignals.length
 				: !!this.typingParticipants.length
 		},
 
 		indicatorMessage() {
-			if (this.isGuest) {
+			if (this.actorIsGuest) {
 				return t('spreed', 'Someone is typing …')
 			}
 

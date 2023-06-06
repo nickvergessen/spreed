@@ -82,6 +82,7 @@ import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
 import VideoBackground from './VideoBackground.vue'
 
 import video from '../../../mixins/video.js'
+import { useActorStore } from '../../../stores/actorStore.js'
 import { ConnectionState } from '../../../utils/webrtc/models/CallParticipantModel.js'
 
 export default {
@@ -135,6 +136,15 @@ export default {
 		},
 	},
 
+	setup() {
+		const { userId, displayName } = useActorStore()
+
+		return {
+			userId,
+			displayName,
+		}
+	},
+
 	data() {
 		return {
 			notificationHandle: null,
@@ -175,14 +185,6 @@ export default {
 			return (this.containerAspectRatio > this.videoAspectRatio)
 				? `width: ${this.$refs.videoContainer.clientHeight * this.videoAspectRatio}px`
 				: `height: ${this.$refs.videoContainer.clientWidth / this.videoAspectRatio}px`
-		},
-
-		userId() {
-			return this.$store.getters.getUserId()
-		},
-
-		displayName() {
-			return this.$store.getters.getDisplayName()
 		},
 
 		firstLetterOfGuestName() {

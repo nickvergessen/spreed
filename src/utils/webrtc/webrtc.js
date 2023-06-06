@@ -42,6 +42,7 @@ import { PARTICIPANT } from '../../constants.js'
 import store from '../../store/index.js'
 import { Sounds } from '../sounds.js'
 import SimpleWebRTC from './simplewebrtc/simplewebrtc.js'
+import { useActorStore } from '../../stores/actorStore.js'
 
 let webrtc
 const spreedPeerConnectionTable = []
@@ -221,7 +222,8 @@ function sendCurrentMediaState() {
  *
  */
 function sendCurrentNick() {
-	webrtc.webrtc.emit('nickChanged', store.getters.getDisplayName())
+	const { displayName } = useActorStore()
+	webrtc.webrtc.emit('nickChanged', displayName)
 }
 
 /**
@@ -526,6 +528,7 @@ function usersInCallChanged(signaling, users) {
  * @param {object} _localCallParticipantModel The local participant
  */
 export default function initWebRtc(signaling, _callParticipantCollection, _localCallParticipantModel) {
+	const { displayName } = useActorStore()
 	callParticipantCollection = _callParticipantCollection
 	localCallParticipantModel = _localCallParticipantModel
 
@@ -695,7 +698,7 @@ export default function initWebRtc(signaling, _callParticipantCollection, _local
 		connection: signaling,
 		enableDataChannels: true,
 		enableSimulcast: signaling.hasFeature('simulcast'),
-		nick: store.getters.getDisplayName(),
+		nick: displayName,
 	})
 
 	if (!window.OCA.Talk) {

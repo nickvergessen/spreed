@@ -181,6 +181,7 @@ import NcProgressBar from '@nextcloud/vue/dist/Components/NcProgressBar.js'
 import PollVotersDetails from './PollVotersDetails.vue'
 
 import { PARTICIPANT } from '../../../../../constants.js'
+import { useActorStore } from '../../../../../stores/actorStore.js'
 
 export default {
 
@@ -215,6 +216,15 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+	},
+
+	setup() {
+		const { actorId, actorType } = useActorStore()
+
+		return {
+			actorId,
+			actorType,
+		}
 	},
 
 	data() {
@@ -322,20 +332,6 @@ export default {
 				}
 				return parseInt(this.pollVotes[`option-${index}`] / this.votersNumber * 100)
 			}
-		},
-
-		/**
-		 * Current actor id
-		 */
-		actorId() {
-			return this.$store.getters.getActorId()
-		},
-
-		/**
-		 * Current actor type
-		 */
-		actorType() {
-			return this.$store.getters.getActorType()
 		},
 
 		currentUserIsPollCreator() {

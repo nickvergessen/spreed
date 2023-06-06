@@ -85,6 +85,7 @@ import Tooltip from '@nextcloud/vue/dist/Directives/Tooltip.js'
 import AudioPlayer from './AudioPlayer.vue'
 
 import { useViewer } from '../../../../../composables/useViewer.js'
+import { useActorStore } from '../../../../../stores/actorStore.js'
 
 const PREVIEW_TYPE = {
 	TEMPORARY: 0,
@@ -238,8 +239,14 @@ export default {
 	emits: ['remove-file'],
 
 	setup() {
+		const { userId, actorIsGuest } = useActorStore()
 		const { openViewer } = useViewer()
-		return { openViewer }
+
+		return {
+			userId,
+			actorIsGuest,
+			openViewer,
+		}
 	},
 
 	data() {
@@ -343,7 +350,6 @@ export default {
 		},
 
 		previewUrl() {
-			const userId = this.$store.getters.getUserId()
 
 			if (this.previewType === PREVIEW_TYPE.TEMPORARY) {
 				return this.localUrl
@@ -354,12 +360,12 @@ export default {
 			// whether to embed/render the file directly
 			if (this.previewType === PREVIEW_TYPE.DIRECT) {
 				// return direct image
-				if (userId === null) {
+				if (this.actorIsGuest) {
 					// guest mode, use public link download URL
 					return this.link + '/download/' + encodePath(this.name)
 				} else {
 					// use direct DAV URL
-					return generateRemoteUrl(`dav/files/${userId}`) + encodePath(this.internalAbsolutePath)
+					return generateRemoteUrl(`dav/files/${this.userId}`) + encodePath(this.internalAbsolutePath)
 				}
 			}
 
@@ -369,7 +375,7 @@ export default {
 				previewSize = 32
 			}
 			previewSize = Math.ceil(previewSize * window.devicePixelRatio)
-			if (userId === null) {
+			if (this.actorIsGuest) {
 				// guest mode: grab token from the link URL
 				// FIXME: use a cleaner way...
 				const token = this.link.slice(this.link.lastIndexOf('/') + 1)

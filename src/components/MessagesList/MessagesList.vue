@@ -93,6 +93,7 @@ import { useIsInCall } from '../../composables/useIsInCall.js'
 import { ATTENDEE, CHAT } from '../../constants.js'
 import isInLobby from '../../mixins/isInLobby.js'
 import { EventBus } from '../../services/EventBus.js'
+import { useActorStore } from '../../stores/actorStore.js'
 
 export default {
 	name: 'MessagesList',
@@ -129,8 +130,13 @@ export default {
 	},
 
 	setup() {
+		const actorStore = useActorStore()
 		const isInCall = useIsInCall()
-		return { isInCall }
+
+		return {
+			actorStore,
+			isInCall,
+		}
 	},
 
 	data() {
@@ -248,7 +254,7 @@ export default {
 				return false
 			}
 
-			return !!this.$store.getters.findParticipant(this.token, this.$store.getters.getParticipantIdentifier())
+			return !!this.$store.getters.findParticipant(this.token, this.actorStore.getParticipantIdentifier())
 		},
 
 		conversation() {

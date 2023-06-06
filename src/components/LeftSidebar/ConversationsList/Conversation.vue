@@ -138,6 +138,7 @@ import ConversationIcon from './../../ConversationIcon.vue'
 
 import { CONVERSATION, PARTICIPANT, ATTENDEE } from '../../../constants.js'
 import { copyConversationLinkToClipboard } from '../../../services/urlService.js'
+import { useActorStore } from '../../../stores/actorStore.js'
 
 export default {
 	name: 'Conversation',
@@ -179,6 +180,14 @@ export default {
 				}
 			},
 		},
+	},
+
+	setup() {
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+		}
 	},
 
 	computed: {
@@ -240,7 +249,7 @@ export default {
 				return this.simpleLastChatMessage
 			}
 
-			if (this.lastChatMessage.actorId === this.$store.getters.getUserId()) {
+			if (this.lastChatMessage.actorId === this.actorStore.userId) {
 				return t('spreed', 'You: {lastMessage}', {
 					lastMessage: this.simpleLastChatMessage,
 				}, undefined, {

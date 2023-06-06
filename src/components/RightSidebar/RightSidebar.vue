@@ -41,7 +41,7 @@
 			</template>
 			<ChatView :is-visible="opened" />
 		</NcAppSidebarTab>
-		<NcAppSidebarTab v-if="(getUserId || isModeratorOrUser) && !isOneToOne"
+		<NcAppSidebarTab v-if="(userId || isModeratorOrUser) && !isOneToOne"
 			id="participants"
 			ref="participantsTab"
 			:order="2"
@@ -65,18 +65,18 @@
 				:main-conversation="mainConversation"
 				:is-active="activeTab === 'breakout-rooms'" />
 		</NcAppSidebarTab>
-		<NcAppSidebarTab v-if="!getUserId || showSIPSettings"
+		<NcAppSidebarTab v-if="!userId || showSIPSettings"
 			id="details-tab"
 			:order="4"
 			:name="t('spreed', 'Details')">
 			<template #icon>
 				<InformationOutline :size="20" />
 			</template>
-			<SetGuestUsername v-if="!getUserId" />
+			<SetGuestUsername v-if="!userId" />
 			<SipSettings v-if="showSIPSettings"
 				:meeting-id="conversation.token"
 				:attendee-pin="conversation.attendeePin" />
-			<div v-if="!getUserId" id="app-settings">
+			<div v-if="!userId" id="app-settings">
 				<div id="app-settings-header">
 					<NcButton type="tertiary" @click="showSettings">
 						<template #icon>
@@ -87,7 +87,7 @@
 				</div>
 			</div>
 		</NcAppSidebarTab>
-		<NcAppSidebarTab v-if="getUserId"
+		<NcAppSidebarTab v-if="userId"
 			id="shared-items"
 			ref="sharedItemsTab"
 			:order="5"
@@ -125,6 +125,7 @@ import SipSettings from './SipSettings.vue'
 import { CONVERSATION, WEBINAR, PARTICIPANT } from '../../constants.js'
 import isInLobby from '../../mixins/isInLobby.js'
 import BrowserStorage from '../../services/BrowserStorage.js'
+import { useActorStore } from '../../stores/actorStore.js'
 
 export default {
 	name: 'RightSidebar',
@@ -159,6 +160,14 @@ export default {
 		},
 	},
 
+	setup() {
+		const { userId } = useActorStore()
+
+		return {
+			userId,
+		}
+	},
+
 	data() {
 		return {
 			activeTab: 'participants',
@@ -190,10 +199,6 @@ export default {
 
 		mainConversation() {
 			return this.$store.getters.conversation(this.mainConversationToken) || this.$store.getters.dummyConversation
-		},
-
-		getUserId() {
-			return this.$store.getters.getUserId()
 		},
 
 		canAddParticipants() {
@@ -262,7 +267,7 @@ export default {
 		},
 
 		showBreakoutRoomsTab() {
-			return this.getUserId && !this.isOneToOne
+			return this.userId && !this.isOneToOne
 				&& (this.breakoutRoomsConfigured || this.conversation.breakoutRoomMode === CONVERSATION.BREAKOUT_ROOM_MODE.FREE || this.conversation.objectType === 'room')
 		},
 

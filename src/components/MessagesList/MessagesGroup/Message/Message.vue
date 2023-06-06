@@ -246,6 +246,7 @@ import { useIsInCall } from '../../../../composables/useIsInCall.js'
 import { ATTENDEE, CONVERSATION, PARTICIPANT } from '../../../../constants.js'
 import participant from '../../../../mixins/participant.js'
 import { EventBus } from '../../../../services/EventBus.js'
+import { useActorStore } from '../../../../stores/actorStore.js'
 
 const isTranslationAvailable = getCapabilities()?.spreed?.config?.chat?.translations?.length > 0
 
@@ -415,8 +416,14 @@ export default {
 	},
 
 	setup() {
+		const actorStore = useActorStore()
 		const isInCall = useIsInCall()
-		return { isInCall, isTranslationAvailable }
+
+		return {
+			actorStore,
+			isInCall,
+			isTranslationAvailable,
+		}
 	},
 
 	data() {
@@ -826,8 +833,8 @@ export default {
 			const summary = []
 
 			for (const item in list) {
-				if (list[item].actorType === this.$store.getters.getActorType()
-					&& list[item].actorId === this.$store.getters.getActorId()) {
+				if (list[item].actorType === this.actorStore.actorType
+					&& list[item].actorId === this.actorStore.actorId) {
 					summary.unshift(t('spreed', 'You'))
 				} else {
 					summary.push(this.getDisplayNameForReaction(list[item]))

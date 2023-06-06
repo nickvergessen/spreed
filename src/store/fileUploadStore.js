@@ -34,6 +34,7 @@ import {
 } from '../services/filesSharingServices.js'
 import { setAttachmentFolder } from '../services/settingsService.js'
 import { findUniquePath, getFileExtension } from '../utils/fileUpload.js'
+import { useActorStore } from '../stores/actorStore.js'
 
 const state = {
 	attachmentFolder: loadState('spreed', 'attachment_folder', ''),
@@ -285,6 +286,7 @@ const actions = {
 	 * @param {string} uploadId The unique uploadId
 	 */
 	async uploadFiles({ commit, dispatch, state, getters }, uploadId) {
+		const { userId } = useActorStore()
 		if (state.currentUploadId === uploadId) {
 			commit('setCurrentUploadId', undefined)
 		}
@@ -308,7 +310,7 @@ const actions = {
 			// currentFile to be uploaded
 			const currentFile = state.uploads[uploadId].files[index].file
 			// userRoot path
-			const userRoot = '/files/' + getters.getUserId()
+			const userRoot = '/files/' + userId
 			const fileName = (currentFile.newName || currentFile.name)
 			// Candidate rest of the path
 			const path = getters.getAttachmentFolder() + '/' + fileName
@@ -432,7 +434,9 @@ const actions = {
 	},
 
 	async getFileTemplates({ commit, getters }) {
-		if (getters.getUserId() === null) {
+		const { actorIsGuest } = useActorStore()
+
+		if (actorIsGuest) {
 			console.debug('Skip file templates setup for participants that are not logged in')
 			commit('markFileTemplatesInitialisedForGuests')
 			return

@@ -37,6 +37,7 @@ import ParticipantsList from '../ParticipantsList/ParticipantsList.vue'
 
 import { ATTENDEE, PARTICIPANT } from '../../../../constants.js'
 import UserStatus from '../../../../mixins/userStatus.js'
+import { useActorStore } from '../../../../stores/actorStore.js'
 
 export default {
 	name: 'CurrentParticipants',
@@ -59,6 +60,14 @@ export default {
 			type: Boolean,
 			default: true,
 		},
+	},
+
+	setup() {
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+		}
 	},
 
 	computed: {
@@ -91,8 +100,8 @@ export default {
 
 		currentParticipant() {
 			return this.participants.find(x => {
-				return x.actorId === this.$store.getters.getActorId()
-					&& x.actorType === this.$store.getters.getActorType()
+				return x.actorId === this.actorStore.actorId
+					&& x.actorType === this.actorStore.actorType
 			})
 		},
 

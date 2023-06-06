@@ -30,7 +30,7 @@
 			class="app-settings-section">
 			<MediaDevicesPreview />
 		</NcAppSettingsSection>
-		<NcAppSettingsSection v-if="!isGuest"
+		<NcAppSettingsSection v-if="!actorIsGuest"
 			id="attachments"
 			:title="t('spreed', 'Attachments folder')"
 			class="app-settings-section">
@@ -48,7 +48,7 @@
 				</NcButton>
 			</div>
 		</NcAppSettingsSection>
-		<NcAppSettingsSection v-if="!isGuest"
+		<NcAppSettingsSection v-if="!actorIsGuest"
 			id="privacy"
 			:title="t('spreed', 'Privacy')"
 			class="app-settings-section">
@@ -168,6 +168,7 @@ import NcTextField from '@nextcloud/vue/dist/Components/NcTextField.js'
 import MediaDevicesPreview from '../MediaDevicesPreview.vue'
 
 import { PRIVACY } from '../../constants.js'
+import { useActorStore } from '../../stores/actorStore.js'
 
 const supportTypingStatus = getCapabilities()?.spreed?.config?.chat?.['typing-privacy'] !== undefined
 
@@ -184,7 +185,10 @@ export default {
 	},
 
 	setup() {
+		const { actorIsGuest } = useActorStore()
+
 		return {
+			actorIsGuest,
 			supportTypingStatus,
 		}
 	},
@@ -213,10 +217,6 @@ export default {
 
 		locationHint() {
 			return t('spreed', 'Choose the folder in which attachments should be saved.')
-		},
-
-		isGuest() {
-			return !this.$store.getters.getUserId()
 		},
 
 		readStatusPrivacyIsPublic() {

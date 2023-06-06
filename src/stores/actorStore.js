@@ -30,7 +30,7 @@
 
 import { defineStore } from 'pinia'
 
-import { PARTICIPANT } from '../constants.js'
+import { ATTENDEE, PARTICIPANT } from '../constants.js'
 
 export const useActorStore = defineStore('actorStore', {
 	state: () => ({
@@ -43,24 +43,10 @@ export const useActorStore = defineStore('actorStore', {
 	}),
 
 	getters: {
-		getUserId: (state) => () => {
-			return state.userId
+		actorIsGuest: (state) => {
+			return state.userId === null && state.actorType === ATTENDEE.ACTOR_TYPE.GUESTS
 		},
-		getSessionId: (state) => () => {
-			return state.sessionId
-		},
-		getAttendeeId: (state) => () => {
-			return state.attendeeId
-		},
-		getActorId: (state) => () => {
-			return state.actorId
-		},
-		getActorType: (state) => () => {
-			return state.actorType
-		},
-		getDisplayName: (state) => () => {
-			return state.displayName
-		},
+
 		getParticipantIdentifier: (state) => () => {
 			return {
 				attendeeId: state.attendeeId,

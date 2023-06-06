@@ -41,6 +41,7 @@ import {
 	removeReactionFromMessage,
 } from '../services/messagesService.js'
 import CancelableRequest from '../utils/cancelableRequest.js'
+import { useActorStore } from '../stores/actorStore.js'
 
 /**
  * Returns whether the given message contains a mention to self, directly
@@ -52,6 +53,8 @@ import CancelableRequest from '../utils/cancelableRequest.js'
  * false otherwise
  */
 function hasMentionToSelf(context, message) {
+	const { userId, actorId, actorType } = useActorStore()
+
 	if (!message.messageParameters) {
 		return false
 	}
@@ -63,14 +66,14 @@ function hasMentionToSelf(context, message) {
 			return true
 		}
 		if (param.type === 'guest'
-			&& context.getters.getActorType() === ATTENDEE.ACTOR_TYPE.GUESTS
-			&& param.id === ('guest/' + context.getters.getActorId())
+			&& actorType === ATTENDEE.ACTOR_TYPE.GUESTS
+			&& param.id === ('guest/' + actorId)
 		) {
 			return true
 		}
 		if (param.type === 'user'
-			&& context.getters.getActorType() === ATTENDEE.ACTOR_TYPE.USERS
-			&& param.id === context.getters.getUserId()
+			&& actorType === ATTENDEE.ACTOR_TYPE.USERS
+			&& param.id === userId
 		) {
 			return true
 		}
@@ -580,6 +583,7 @@ const actions = {
 	 * @return {object} temporary message
 	 */
 	createTemporaryMessage(context, { text, token, uploadId, index, file, localUrl, isVoiceMessage }) {
+		const { actorId, actorType, displayName} = useActorStore()
 		const messageToBeReplied = context.getters.getMessageToBeReplied(token)
 		const date = new Date()
 		let tempId = 'temp-' + date.getTime()
@@ -601,9 +605,9 @@ const actions = {
 
 		const message = Object.assign({}, {
 			id: tempId,
-			actorId: context.getters.getActorId(),
-			actorType: context.getters.getActorType(),
-			actorDisplayName: context.getters.getDisplayName(),
+			actorId,
+			actorType,
+			actorDisplayName: displayName,
 			timestamp: 0,
 			systemMessage: '',
 			messageType: isVoiceMessage ? 'voice-message' : '',
@@ -732,6 +736,8 @@ const actions = {
 	 * @param {boolean} data.updateVisually whether to also update the marker visually in the UI;
 	 */
 	async updateLastReadMessage(context, { token, id = 0, updateVisually = false }) {
+		const { userId } = useActorStore()
+
 		const conversation = context.getters.conversations[token]
 		if (!conversation || conversation.lastReadMessage === id) {
 			return
@@ -747,7 +753,7 @@ const actions = {
 			context.commit('setVisualLastReadMessageId', { token, id })
 		}
 
-		if (context.getters.getUserId()) {
+		if (userId) {
 			// only update on server side if there's an actual user, not guest
 			await updateLastReadMessage(token, id)
 		}
@@ -994,9 +1000,8 @@ const actions = {
 			})
 		}
 
+		const { actorId, actorType } = useActorStore()
 		const conversation = context.getters.conversation(token)
-		const actorId = context.getters.getActorId()
-		const actorType = context.getters.getActorType()
 		let countNewMessages = 0
 		let hasNewMention = conversation.unreadMention
 		let lastMessage = null

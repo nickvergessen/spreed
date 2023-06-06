@@ -167,6 +167,7 @@ import { CONVERSATION } from '../../constants.js'
 import getParticipants from '../../mixins/getParticipants.js'
 import userStatus from '../../mixins/userStatus.js'
 import BrowserStorage from '../../services/BrowserStorage.js'
+import { useActorStore } from '../../stores/actorStore.js'
 import { localCallParticipantModel, localMediaModel } from '../../utils/webrtc/index.js'
 
 export default {
@@ -212,6 +213,14 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+	},
+
+	setup() {
+		const { actorId } = useActorStore()
+
+		return {
+			actorId,
+		}
 	},
 
 	data: () => {
@@ -261,13 +270,6 @@ export default {
 
 		renderedDescription() {
 			return this.renderContent(this.conversation.description)
-		},
-
-		/**
-		 * Current actor id
-		 */
-		actorId() {
-			return this.$store.getters.getActorId()
 		},
 
 		/**

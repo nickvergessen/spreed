@@ -155,6 +155,7 @@ import {
 	searchListedConversations,
 } from '../../services/conversationsService.js'
 import { EventBus } from '../../services/EventBus.js'
+import { useActorStore } from '../../stores/actorStore.js'
 import CancelableRequest from '../../utils/cancelableRequest.js'
 
 export default {
@@ -178,6 +179,14 @@ export default {
 		arrowNavigation,
 		isMobile,
 	],
+
+	setup() {
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+		}
+	},
 
 	data() {
 		return {
@@ -351,7 +360,7 @@ export default {
 				this.searchResults = response?.data?.ocs?.data || []
 				this.searchResultsUsers = this.searchResults.filter((match) => {
 					return match.source === 'users'
-						&& match.id !== this.$store.getters.getUserId()
+						&& match.id !== this.actorStore.userId
 						&& !this.hasOneToOneConversationWith(match.id)
 				})
 				this.searchResultsGroups = this.searchResults.filter((match) => match.source === 'groups')

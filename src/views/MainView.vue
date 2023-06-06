@@ -22,6 +22,7 @@ import TopBar from '../components/TopBar/TopBar.vue'
 import { useIsInCall } from '../composables/useIsInCall.js'
 import isInLobby from '../mixins/isInLobby.js'
 import participant from '../mixins/participant.js'
+import { useActorStore } from '../stores/actorStore.js'
 
 export default {
 	name: 'MainView',
@@ -45,8 +46,13 @@ export default {
 	},
 
 	setup() {
+		const actorStore = useActorStore()
 		const isInCall = useIsInCall()
-		return { isInCall }
+
+		return {
+			actorStore,
+			isInCall,
+		}
 	},
 
 	computed: {
@@ -65,7 +71,7 @@ export default {
 			if (isInLobby && this.isInCall) {
 				this.$store.dispatch('leaveCall', {
 					token: this.token,
-					participantIdentifier: this.$store.getters.getParticipantIdentifier(),
+					participantIdentifier: this.actorStore.getParticipantIdentifier(),
 				})
 			}
 		},

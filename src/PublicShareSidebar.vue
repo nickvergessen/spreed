@@ -246,7 +246,7 @@ export default {
 				// Although the current participant is automatically added to
 				// the participants store it must be explicitly set in the
 				// actors store.
-				if (!this.$store.getters.getUserId()) {
+				if (this.actorStore.actorIsGuest) {
 					// Set the current actor/participant for guests
 					const conversation = this.$store.getters.conversation(this.token)
 

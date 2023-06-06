@@ -20,6 +20,7 @@
  */
 
 import SignalingParticipantList from './SignalingParticipantList.js'
+import { useActorStore } from '../stores/actorStore.js'
 
 /**
  * Helper to send and receive signaling messages for typing notifications.
@@ -94,10 +95,10 @@ SignalingTypingHandler.prototype = {
 
 		this._typing = typing
 
-		const currentNextcloudSessionId = this._store.getters.getSessionId()
+		const { sessionId } = useActorStore()
 
 		for (const participant of this._signalingParticipantList.getParticipants()) {
-			if (participant.nextcloudSessionId === currentNextcloudSessionId) {
+			if (participant.nextcloudSessionId === sessionId) {
 				continue
 			}
 
@@ -109,7 +110,7 @@ SignalingTypingHandler.prototype = {
 
 		this._store.commit('setTyping', {
 			token: this._store.getters.getToken(),
-			sessionId: this._store.getters.getSessionId(),
+			sessionId,
 			typing,
 		})
 	},

@@ -84,7 +84,7 @@ export default {
 
 	computed: {
 		actorDisplayName() {
-			return this.$store.getters.getDisplayName() || t('spreed', 'Guest')
+			return this.actorStore.displayName || t('spreed', 'Guest')
 		},
 		displayNameLabel() {
 			return t('spreed', 'Display name: {name}', {
@@ -92,7 +92,7 @@ export default {
 			}, undefined, { escape: false })
 		},
 		actorId() {
-			return this.$store.getters.getActorId()
+			return this.actorStore.actorId
 		},
 		token() {
 			return this.$store.getters.getToken()
@@ -127,12 +127,12 @@ export default {
 
 	methods: {
 		async handleChooseUserName() {
-			const previousName = this.$store.getters.getDisplayName()
+			const previousName = this.actorStore.displayName
 			try {
 				this.actorStore.setDisplayName(this.guestUserName)
 				this.$store.dispatch('forceGuestName', {
 					token: this.token,
-					actorId: this.$store.getters.getActorId(),
+					actorId: this.actorStore.actorId,
 					actorDisplayName: this.guestUserName,
 				})
 				await setGuestUserName(this.token, this.guestUserName)
@@ -146,7 +146,7 @@ export default {
 				this.actorStore.setDisplayName(previousName)
 				this.$store.dispatch('forceGuestName', {
 					token: this.token,
-					actorId: this.$store.getters.getActorId(),
+					actorId: this.actorStore.actorId,
 					actorDisplayName: previousName,
 				})
 				console.debug(exception)

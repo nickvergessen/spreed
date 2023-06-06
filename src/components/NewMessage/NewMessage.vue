@@ -184,6 +184,7 @@ import { CONVERSATION, PARTICIPANT, PRIVACY } from '../../constants.js'
 import { EventBus } from '../../services/EventBus.js'
 import { shareFile } from '../../services/filesSharingServices.js'
 import { searchPossibleMentions } from '../../services/mentionsService.js'
+import { useActorStore } from '../../stores/actorStore.js'
 import { fetchClipboardContent } from '../../utils/clipboard.js'
 
 const picker = getFilePickerBuilder(t('spreed', 'File to share'))
@@ -260,8 +261,11 @@ export default {
 	expose: ['focusInput'],
 
 	setup() {
+		const { actorIsGuest } = useActorStore()
 		const { openViewer } = useViewer()
+
 		return {
+			actorIsGuest,
 			openViewer,
 			supportTypingStatus,
 		}
@@ -318,12 +322,8 @@ export default {
 			return this.$store.getters.getMessageToBeReplied(this.token)
 		},
 
-		currentUserIsGuest() {
-			return this.$store.getters.getUserId() === null
-		},
-
 		canShareFiles() {
-			return !this.currentUserIsGuest
+			return !this.actorIsGuest
 		},
 
 		canUploadFiles() {

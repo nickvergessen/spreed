@@ -47,6 +47,8 @@ import { generateOcsUrl } from '@nextcloud/router'
 
 import NcUserBubble from '@nextcloud/vue/dist/Components/NcUserBubble.js'
 
+import { useActorStore } from '../../../../../stores/actorStore.js'
+
 export default {
 	name: 'Mention',
 
@@ -69,6 +71,14 @@ export default {
 		},
 	},
 
+	setup() {
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+		}
+	},
+
 	computed: {
 		isMentionToAll() {
 			return this.type === 'call'
@@ -85,12 +95,12 @@ export default {
 			// while storing them as "… @id …" in chat messages.
 			// So when comparing a guest we have to prefix "guest/"
 			// when comparing the id
-			return this.$store.getters.getActorType() === 'guests'
-				&& this.id === ('guest/' + this.$store.getters.getActorId())
+			return this.actorStore.actorIsGuest
+				&& this.id === ('guest/' + this.actorStore.actorId)
 		},
 		isCurrentUser() {
-			return this.$store.getters.getActorType() === 'users'
-				&& this.id === this.$store.getters.getUserId()
+			return this.actorStore.actorType === 'users'
+				&& this.id === this.actorStore.userId
 		},
 		isCurrentUserGroup() {
 			return this.isGroupMention

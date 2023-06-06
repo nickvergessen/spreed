@@ -233,6 +233,7 @@ import ParticipantPermissionsEditor from './ParticipantPermissionsEditor/Partici
 import { CONVERSATION, PARTICIPANT, ATTENDEE } from '../../../../../constants.js'
 import readableNumber from '../../../../../mixins/readableNumber.js'
 import UserStatus from '../../../../../mixins/userStatus.js'
+import { useActorStore } from '../../../../../stores/actorStore.js'
 
 // Material design icons
 
@@ -297,6 +298,12 @@ export default {
 	},
 
 	emits: ['click-participant'],
+
+	setup() {
+		const { actorIsGuest } = useActorStore()
+
+		return { actorIsGuest }
+	},
 
 	data() {
 		return {
@@ -499,7 +506,7 @@ export default {
 			return this.$store.getters.conversation(this.token) || {
 				sessionId: '0',
 				participantFlags: 0,
-				participantType: this.$store.getters.getUserId() !== null ? PARTICIPANT.TYPE.USER : PARTICIPANT.TYPE.GUEST,
+				participantType: this.actorIsGuest ? PARTICIPANT.TYPE.GUEST : PARTICIPANT.TYPE.USER,
 			}
 		},
 

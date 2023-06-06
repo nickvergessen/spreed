@@ -159,6 +159,7 @@ import LocalVideoControlButton from './LocalVideoControlButton.vue'
 
 import { useIsInCall } from '../../../composables/useIsInCall.js'
 import { PARTICIPANT } from '../../../constants.js'
+import { useActorStore } from '../../../stores/actorStore.js'
 import { CONNECTION_QUALITY } from '../../../utils/webrtc/analyzers/PeerConnectionAnalyzer.js'
 import { callAnalyzer } from '../../../utils/webrtc/index.js'
 import SpeakingWhileMutedWarner from '../../../utils/webrtc/SpeakingWhileMutedWarner.js'
@@ -218,8 +219,13 @@ export default {
 	},
 
 	setup() {
+		const actorStore = useActorStore()
 		const isInCall = useIsInCall()
-		return { isInCall }
+
+		return {
+			actorStore,
+			isInCall,
+		}
 	},
 
 	data() {
@@ -530,7 +536,7 @@ export default {
 			this.$store.dispatch(
 				'setParticipantHandRaised',
 				{
-					sessionId: this.$store.getters.getSessionId(),
+					sessionId: this.actorStore.sessionId,
 					raisedHand: this.model.attributes.raisedHand,
 				}
 			)

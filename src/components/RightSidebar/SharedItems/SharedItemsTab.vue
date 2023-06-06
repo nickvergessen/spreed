@@ -45,7 +45,7 @@
 			@has-resources="value => hasRelatedResources = value" />
 		<template v-if="projectsEnabled">
 			<NcAppNavigationCaption :title="t('spreed', 'Projects')" />
-			<CollectionList v-if="getUserId && token"
+			<CollectionList v-if="userId && token"
 				:id="token"
 				type="room"
 				:name="conversation.displayName"
@@ -82,6 +82,7 @@ import SharedItemsBrowser from './SharedItemsBrowser/SharedItemsBrowser.vue'
 
 import { SHARED_ITEM } from '../../../constants.js'
 import sharedItems from '../../../mixins/sharedItems.js'
+import { useActorStore } from '../../../stores/actorStore.js'
 
 export default {
 
@@ -109,6 +110,14 @@ export default {
 		},
 	},
 
+	setup() {
+		const { userId } = useActorStore()
+
+		return {
+			userId,
+		}
+	},
+
 	data() {
 		return {
 			showSharedItemsBrowser: false,
@@ -119,10 +128,6 @@ export default {
 	},
 
 	computed: {
-		getUserId() {
-			return this.$store.getters.getUserId()
-		},
-
 		token() {
 			return this.$store.getters.getToken()
 		},

@@ -43,6 +43,8 @@ import { subscribe, unsubscribe } from '@nextcloud/event-bus'
 
 import usernameToColor from '@nextcloud/vue/dist/Functions/usernameToColor.js'
 
+import { useActorStore } from '../../../stores/actorStore.js'
+
 export default {
 	name: 'ReactionToaster',
 
@@ -68,6 +70,14 @@ export default {
 			type: Array,
 			required: true,
 		},
+	},
+
+	setup() {
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+		}
 	},
 
 	data() {
@@ -138,7 +148,7 @@ export default {
 				id: model.attributes.peerId,
 				reaction,
 				name: isLocalModel
-					? this.$store.getters.getDisplayName()
+					? this.actorStore.displayName
 					: this.getParticipantName(model),
 				seed: Math.random(),
 			})

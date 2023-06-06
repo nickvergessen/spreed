@@ -173,6 +173,7 @@ import PromotedView from '../missingMaterialDesignIcons/PromotedView.vue'
 import { useIsInCall } from '../../composables/useIsInCall.js'
 import { CALL, CONVERSATION, PARTICIPANT } from '../../constants.js'
 import { generateAbsoluteUrl } from '../../services/urlService.js'
+import { useActorStore } from '../../stores/actorStore.js'
 import { callParticipantCollection } from '../../utils/webrtc/index.js'
 
 export default {
@@ -232,8 +233,13 @@ export default {
 	emits: ['open-breakout-rooms-editor'],
 
 	setup() {
+		const actorStore = useActorStore()
 		const isInCall = useIsInCall()
-		return { isInCall }
+
+		return {
+			actorStore,
+			isInCall,
+		}
 	},
 
 	data() {
@@ -434,7 +440,7 @@ export default {
 			this.$store.dispatch(
 				'setParticipantHandRaised',
 				{
-					sessionId: this.$store.getters.getSessionId(),
+					sessionId: this.actorStore.sessionId,
 					raisedHand: this.model.attributes.raisedHand,
 				}
 			)

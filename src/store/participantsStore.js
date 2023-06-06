@@ -86,13 +86,13 @@ const getters = {
 	 * Gets the array of external session ids.
 	 *
 	 * @param {object} state - the state object.
-	 * @param {object} rootState - the root state object.
 	 * @return {Array} the typing session IDs array.
 	 */
-	externalTypingSignals: (state, rootState) => (token) => {
+	externalTypingSignals: (state) => (token) => {
+		const { sessionId } = useActorStore()
 		if (state.typing[token]) {
 			return Object.values(state.typing[token]).filter(id => {
-				return rootState.getSessionId() !== id
+				return sessionId !== id
 			})
 		}
 		return []
@@ -558,7 +558,7 @@ const actions = {
 			context.dispatch('addConversation', response.data.ocs.data)
 			context.dispatch('updateSessionId', {
 				token,
-				participantIdentifier: context.getters.getParticipantIdentifier(),
+				participantIdentifier: actorStore.getParticipantIdentifier(),
 				sessionId: response.data.ocs.data.sessionId,
 			})
 
@@ -637,10 +637,11 @@ const actions = {
 	 * @param {string} data.token - conversation token.
 	 */
 	async leaveConversation(context, { token }) {
+		const actorStore = useActorStore()
 		if (context.getters.isInCall(token)) {
 			await context.dispatch('leaveCall', {
 				token,
-				participantIdentifier: context.getters.getParticipantIdentifier(),
+				participantIdentifier: actorStore.getParticipantIdentifier(),
 			})
 		}
 
