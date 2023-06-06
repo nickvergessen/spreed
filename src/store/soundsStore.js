@@ -52,6 +52,7 @@ const mutations = {
 		state.playSoundsGuest = enabled
 	},
 
+	// FIXME Name overlaps with actorStore
 	setUserId(state, userId) {
 		state.userId = userId
 	},
@@ -59,6 +60,7 @@ const mutations = {
 
 const actions = {
 
+	// FIXME Name overlaps with actorStore
 	/**
 	 * @param {object} context default store context;
 	 * @param {object} user A NextcloudUser object as returned by @nextcloud/auth

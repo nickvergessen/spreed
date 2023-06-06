@@ -65,6 +65,7 @@ import { getFileConversation } from './services/filesIntegrationServices.js'
 import {
 	leaveConversationSync,
 } from './services/participantsService.js'
+import { useActorStore } from './stores/actorStore.js'
 import CancelableRequest from './utils/cancelableRequest.js'
 import { signalingKill } from './utils/webrtc/index.js'
 
@@ -86,6 +87,14 @@ export default {
 		browserCheck,
 		sessionIssueHandler,
 	],
+
+	setup() {
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+		}
+	},
 
 	data() {
 		return {
@@ -160,7 +169,7 @@ export default {
 	},
 
 	beforeMount() {
-		this.$store.dispatch('setCurrentUser', getCurrentUser())
+		this.actorStore.setCurrentUser(getCurrentUser())
 
 		window.addEventListener('unload', () => {
 			console.info('Navigating away, leaving conversation')

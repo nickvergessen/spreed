@@ -51,6 +51,7 @@ import { EventBus } from './services/EventBus.js'
 import {
 	leaveConversationSync,
 } from './services/participantsService.js'
+import { useActorStore } from './stores/actorStore.js'
 import { signalingKill } from './utils/webrtc/index.js'
 
 export default {
@@ -67,6 +68,14 @@ export default {
 		sessionIssueHandler,
 		talkHashCheck,
 	],
+
+	setup() {
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+		}
+	},
 
 	data() {
 		return {
@@ -121,7 +130,7 @@ export default {
 
 		async joinConversation() {
 			if (getCurrentUser()) {
-				this.$store.dispatch('setCurrentUser', getCurrentUser())
+				this.actorStore.setCurrentUser(getCurrentUser())
 			}
 
 			await this.$store.dispatch('joinConversation', { token: this.token })
@@ -178,7 +187,7 @@ export default {
 					const conversation = this.$store.getters.conversation(this.token)
 
 					// Setting a guest only uses "sessionId" and "participantType".
-					this.$store.dispatch('setCurrentParticipant', conversation)
+					this.actorStore.setCurrentParticipant(conversation)
 				}
 			} catch (exception) {
 				window.clearInterval(this.fetchCurrentConversationIntervalId)

@@ -76,6 +76,7 @@ import { getPublicShareConversationData } from './services/filesIntegrationServi
 import {
 	leaveConversationSync,
 } from './services/participantsService.js'
+import { useActorStore } from './stores/actorStore.js'
 import { signalingKill } from './utils/webrtc/index.js'
 
 // Styles
@@ -116,7 +117,12 @@ export default {
 
 	setup() {
 		const isInCall = useIsInCall()
-		return { isInCall }
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+			isInCall,
+		}
 	},
 
 	data() {
@@ -222,7 +228,7 @@ export default {
 				// signaling server will retry the connection again and again,
 				// so at some point the anonymous user will have been overriden
 				// with the current user and the connection will succeed.
-				this.$store.dispatch('setCurrentUser', {
+				this.actorStore.setCurrentUser({
 					uid: data.userId,
 					displayName: data.displayName,
 				})
@@ -245,7 +251,7 @@ export default {
 					const conversation = this.$store.getters.conversation(this.token)
 
 					// Setting a guest only uses "sessionId" and "participantType".
-					this.$store.dispatch('setCurrentParticipant', conversation)
+					this.actorStore.setCurrentParticipant(conversation)
 				}
 			} catch (exception) {
 				window.clearInterval(this.fetchCurrentConversationIntervalId)

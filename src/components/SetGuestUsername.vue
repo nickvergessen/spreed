@@ -55,6 +55,7 @@ import NcButton from '@nextcloud/vue/dist/Components/NcButton.js'
 import NcTextField from '@nextcloud/vue/dist/Components/NcTextField.js'
 
 import { setGuestUserName } from '../services/participantsService.js'
+import { useActorStore } from '../stores/actorStore.js'
 
 export default {
 	name: 'SetGuestUsername',
@@ -63,6 +64,14 @@ export default {
 		NcButton,
 		NcTextField,
 		Pencil,
+	},
+
+	setup() {
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+		}
 	},
 
 	data() {
@@ -120,7 +129,7 @@ export default {
 		async handleChooseUserName() {
 			const previousName = this.$store.getters.getDisplayName()
 			try {
-				this.$store.dispatch('setDisplayName', this.guestUserName)
+				this.actorStore.setDisplayName(this.guestUserName)
 				this.$store.dispatch('forceGuestName', {
 					token: this.token,
 					actorId: this.$store.getters.getActorId(),
@@ -134,7 +143,7 @@ export default {
 				}
 				this.isEditingUsername = false
 			} catch (exception) {
-				this.$store.dispatch('setDisplayName', previousName)
+				this.actorStore.setDisplayName(previousName)
 				this.$store.dispatch('forceGuestName', {
 					token: this.token,
 					actorId: this.$store.getters.getActorId(),

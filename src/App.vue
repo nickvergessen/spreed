@@ -64,6 +64,7 @@ import Router from './router/router.js'
 import BrowserStorage from './services/BrowserStorage.js'
 import { EventBus } from './services/EventBus.js'
 import { leaveConversationSync } from './services/participantsService.js'
+import { useActorStore } from './stores/actorStore.js'
 import { signalingKill } from './utils/webrtc/index.js'
 
 // Styles
@@ -92,7 +93,12 @@ export default {
 
 	setup() {
 		const isInCall = useIsInCall()
-		return { isInCall }
+		const actorStore = useActorStore()
+
+		return {
+			actorStore,
+			isInCall,
+		}
 	},
 
 	data() {
@@ -366,7 +372,7 @@ export default {
 			if (!getCurrentUser()) {
 				// Set the current actor/participant for guests
 				const conversation = this.$store.getters.conversation(this.token)
-				this.$store.dispatch('setCurrentParticipant', conversation)
+				this.actorStore.setCurrentParticipant(conversation)
 			}
 		})
 
@@ -438,7 +444,7 @@ export default {
 
 		if (getCurrentUser()) {
 			console.debug('Setting current user')
-			this.$store.dispatch('setCurrentUser', getCurrentUser())
+			this.actorStore.setCurrentUser(getCurrentUser())
 		} else {
 			console.debug('Can not set current user because it\'s a guest')
 		}

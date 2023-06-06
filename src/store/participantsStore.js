@@ -45,6 +45,7 @@ import {
 	setTyping,
 } from '../services/participantsService.js'
 import SessionStorage from '../services/SessionStorage.js'
+import { useActorStore } from '../stores/actorStore.js'
 
 const state = {
 	attendees: {
@@ -545,13 +546,15 @@ const actions = {
 	 * @param {string} data.token - conversation token.
 	 */
 	async joinConversation(context, { token }) {
+		const actorStore = useActorStore()
+
 		const forceJoin = SessionStorage.getItem('joined_conversation') === token
 
 		try {
 			const response = await joinConversation({ token, forceJoin })
 
 			// Update the participant and actor session after a force join
-			context.dispatch('setCurrentParticipant', response.data.ocs.data)
+			actorStore.setCurrentParticipant(response.data.ocs.data)
 			context.dispatch('addConversation', response.data.ocs.data)
 			context.dispatch('updateSessionId', {
 				token,
