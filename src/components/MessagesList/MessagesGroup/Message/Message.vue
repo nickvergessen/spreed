@@ -51,18 +51,18 @@ the main body of the message as well as a quote.
 					class="message-body__main__text">
 					<Quote v-if="parent" :parent-id="parent" v-bind="quote" />
 					<div class="single-emoji">
-						{{ message }}
+						{{ renderedMessage }}
 					</div>
 				</div>
 				<div v-else-if="showJoinCallButton" class="message-body__main__text call-started">
-					<NcRichText :text="message"
+					<NcRichText :text="renderedMessage"
 						:arguments="richParameters"
 						:autolink="true"
 						:reference-limit="0" />
 					<CallButton />
 				</div>
 				<div v-else-if="showResultsButton" class="message-body__main__text system-message">
-					<NcRichText :text="message"
+					<NcRichText :text="renderedMessage"
 						:arguments="richParameters"
 						:autolink="true"
 						:reference-limit="0" />
@@ -73,14 +73,14 @@ the main body of the message as well as a quote.
 						:show-as-button="true" />
 				</div>
 				<div v-else-if="isDeletedMessage" class="message-body__main__text deleted-message">
-					<NcRichText :text="message"
+					<NcRichText :text="renderedMessage"
 						:arguments="richParameters"
 						:autolink="true"
 						:reference-limit="0" />
 				</div>
 				<div v-else class="message-body__main__text" :class="{'system-message': isSystemMessage}">
 					<Quote v-if="parent" :parent-id="parent" v-bind="quote" />
-					<NcRichText :text="message"
+					<NcRichText :text="renderedMessage"
 						:arguments="richParameters"
 						:autolink="true"
 						:reference-limit="1" />
@@ -454,6 +454,15 @@ export default {
 			return !this.isLastMessage && this.id === this.$store.getters.getVisualLastReadMessageId(this.token)
 		},
 
+		renderedMessage() {
+			// TODO decide if we want to see a caption above media or below it
+			if (this.messageParameters?.file && this.message !== '{file}') {
+				return `${this.message} {file}`
+			} else {
+				return this.message
+			}
+		},
+
 		messageObject() {
 			return this.$store.getters.message(this.token, this.id)
 		},
@@ -524,7 +533,7 @@ export default {
 			let match
 			let emojiStrings = ''
 			let emojiCount = 0
-			const trimmedMessage = this.message.trim()
+			const trimmedMessage = this.renderedMessage.trim()
 
 			// eslint-disable-next-line no-cond-assign
 			while (match = regex.exec(trimmedMessage)) {
