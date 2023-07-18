@@ -318,7 +318,7 @@ describe('conversationsStore', () => {
 
 			expect(fetchConversations).toHaveBeenCalledWith({ })
 			// conversationsList is actual to the response
-			expect(store.getters.conversationsList).toEqual([oldConversation, newConversation])
+			expect(store.getters.conversationsList).toEqual([newConversation, oldConversation])
 			// Only old conversation with new activity should be actually replaced with new objects
 			expect(store.state.conversationsStore.conversations[oldConversation.token]).toStrictEqual(oldConversation)
 			expect(store.state.conversationsStore.conversations[newConversation.token]).toStrictEqual(newConversation)
@@ -368,8 +368,11 @@ describe('conversationsStore', () => {
 			await store.dispatch('fetchConversations', { modifiedSince })
 
 			expect(fetchConversations).toHaveBeenCalledWith({ params: { modifiedSince } })
-			// conversationsList is actual to the response
-			expect(store.getters.conversationsList).toEqual([newConversation1, newConversation2])
+			// conversations are actual to the response
+			expect(store.state.conversationsStore.conversations).toEqual({
+				[newConversation1.token]: newConversation1,
+				[newConversation2.token]: newConversation2,
+			})
 			// Only old conversation with new activity should be actually replaced with new objects
 			expect(store.state.conversationsStore.conversations[oldConversation1.token]).toStrictEqual(oldConversation1)
 			expect(store.state.conversationsStore.conversations[oldConversation2.token]).toStrictEqual(newConversation2)
