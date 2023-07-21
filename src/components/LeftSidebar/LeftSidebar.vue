@@ -27,7 +27,7 @@
 				:value.sync="searchText"
 				class="conversations-search"
 				:class="{'conversations-search--expanded': isFocused}"
-				:is-searching="isSearching"
+				:is-focused="isFocused"
 				@focus="setIsFocused"
 				@blur="setIsFocused"
 				@input="debounceFetchSearchResults"
@@ -112,6 +112,17 @@
 				<ul ref="scroller"
 					class="scroller"
 					@scroll="debounceHandleScroll">
+					<NcListItem v-if="noMatchFound && searchText"
+						:title="t('spreed', 'Create a new conversation')"
+						@click="createConversation(searchText)">
+						<template #icon>
+							<ChatPlus :size="30" />
+						</template>
+						<template #subtitle>
+							{{ searchText }}
+						</template>
+					</NcListItem>
+
 					<NcAppNavigationCaption :class="{'hidden-visually': !isSearching}"
 						:title="t('spreed', 'Conversations')" />
 					<Conversation v-for="item of conversationsList"
@@ -147,7 +158,7 @@
 							<NcAppNavigationCaption v-if="searchResultsUsers.length === 0"
 								:title="t('spreed', 'Users')" />
 							<Hint v-if="contactsLoading" :hint="t('spreed', 'Loading')" />
-							<Hint v-else :hint="t('spreed', 'No search results')" />
+							<Hint v-else :hint="t('spreed', 'No matches found')" />
 						</template>
 					</template>
 					<template v-if="showStartConversationsOptions">
@@ -238,6 +249,7 @@ import SearchBox from './SearchBox/SearchBox.vue'
 import { CONVERSATION } from '../../constants.js'
 import arrowNavigation from '../../mixins/arrowNavigation.js'
 import {
+	createPrivateConversation,
 	searchPossibleConversations,
 	searchListedConversations,
 } from '../../services/conversationsService.js'
@@ -307,7 +319,7 @@ export default {
 	computed: {
 		conversationsList() {
 			let conversations = this.$store.getters.conversationsList
-			if (this.searchText !== '') {
+			if (this.searchText !== '' || this.isFocused) {
 				const lowerSearchText = this.searchText.toLowerCase()
 				conversations = conversations.filter(conversation =>
 					conversation.displayName.toLowerCase().includes(lowerSearchText)
@@ -427,11 +439,10 @@ export default {
 		},
 
 		setIsFocused(event) {
-			if (event.relatedTarget?.className.includes('input-field__clear-button') || this.searchText !== '') {
+			if (this.searchText !== '') {
 				return
 			}
 			this.isFocused = event.type === 'focus'
-
 		},
 
 		handleFilter(filter) {
@@ -540,6 +551,17 @@ export default {
 				// For other types, show the modal directly
 				this.$refs.newGroupConversation.showModalForItem(item)
 			}
+		},
+
+		async createConversation(name) {
+			const response = await createPrivateConversation(name)
+			const conversation = response.data.ocs.data
+			this.$store.dispatch('addConversation', conversation)
+			this.abortSearch()
+			this.$router.push({
+				name: 'conversation',
+				params: { token: conversation.token },
+			}).catch(err => console.debug(`Error while pushing the new conversation's route: ${err}`))
 		},
 
 		hasOneToOneConversationWith(userId) {
@@ -794,8 +816,7 @@ export default {
 	}
 	&--expanded {
 
-		// Gets expanded : 100 % - (52px + 1px)
-		width : calc(100% - 53px );
+		width : calc(100% - 8px);
 	}
 
 }

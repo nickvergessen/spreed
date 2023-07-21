@@ -24,7 +24,7 @@
 		<NcTextField ref="searchConversations"
 			:value="value"
 			:label="placeholderText"
-			:show-trailing-button="isSearching"
+			:show-trailing-button="isFocused"
 			trailing-button-icon="close"
 			v-on="$listeners"
 			@update:value="updateValue"
@@ -66,7 +66,7 @@ export default {
 		/**
 		 * If true, this component displays an 'x' button to abort the search
 		 */
-		isSearching: {
+		isFocused: {
 			type: Boolean,
 			default: false,
 		},
