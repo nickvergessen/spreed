@@ -381,6 +381,10 @@ class Listener implements IEventListener {
 		$metaData = json_decode($metaData, true);
 		$metaData = is_array($metaData) ? $metaData : [];
 
+		if (isset($metaData['noMessage'])) {
+			return;
+		}
+
 		if (isset($metaData['messageType']) && $metaData['messageType'] === 'voice-message') {
 			if ($share->getNode()->getMimeType() !== 'audio/mpeg'
 				&& $share->getNode()->getMimeType() !== 'audio/wav') {
@@ -388,6 +392,8 @@ class Listener implements IEventListener {
 			}
 		}
 		$metaData['mimeType'] = $share->getNode()->getMimeType();
+
+		$metaData['caption'] = $metaData['caption'] ?? '';
 
 		$listener->sendSystemMessage($room, 'file_shared', ['share' => $share->getId(), 'metaData' => $metaData]);
 	}
