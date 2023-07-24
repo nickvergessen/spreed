@@ -439,6 +439,7 @@ export default {
 		},
 
 		setIsFocused(event) {
+			console.log(event.type)
 			if (this.searchText !== '') {
 				return
 			}
