@@ -124,7 +124,7 @@
 							:key="item.id"
 							:ref="`conversation-${item.token}`"
 							:item="item" />
-						<Hint v-if="filteredConversationsList.length === 0" :hint="t('spreed', 'No matches')" />
+						<Hint v-if="filteredConversationsList.length === 0" :hint="t('spreed', 'No matches found')" />
 					</template>
 
 					<!-- Search results -->
@@ -134,7 +134,7 @@
 							:key="item.id"
 							:ref="`conversation-${item.token}`"
 							:item="item" />
-						<Hint v-if="searchResultsConversationList.length === 0" :hint="t('spreed', 'No matches')" />
+						<Hint v-if="searchResultsConversationList.length === 0" :hint="t('spreed', 'No matches found')" />
 
 						<!-- Search results: listed (open) conversations -->
 						<template v-if="!listedConversationsLoading && searchResultsListedConversations.length !== 0">
