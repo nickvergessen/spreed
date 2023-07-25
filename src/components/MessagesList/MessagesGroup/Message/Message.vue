@@ -456,8 +456,9 @@ export default {
 
 		renderedMessage() {
 			// TODO decide if we want to see a caption above media or below it
-			if (this.messageParameters?.file && this.message !== '{file}') {
-				return `${this.message} {file}`
+			const fileReferences = Object.keys(this.messageParameters).filter(key => key.includes('file'))
+			if (fileReferences?.length && this.message !== '{file}') {
+				return [this.message, ...fileReferences.map(ref => `{${ref}}`)].join(' ')
 			} else {
 				return this.message
 			}
