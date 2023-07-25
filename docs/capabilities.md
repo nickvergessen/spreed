@@ -123,3 +123,4 @@
 * `typing-privacy` - Support toggle typing privacy
 
 ## 18
+* `media-caption` - Whether media caption can be added to shared files and the endpoint to share multiple files in one message exists

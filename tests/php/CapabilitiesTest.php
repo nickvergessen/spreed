@@ -139,6 +139,7 @@ class CapabilitiesTest extends TestCase {
 			'typing-privacy',
 			'message-expiration',
 			'reactions',
+			'media-caption',
 		];
 	}
 
