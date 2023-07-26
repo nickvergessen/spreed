@@ -340,6 +340,7 @@ describe('Message.vue', () => {
 				const messageEl = wrapper.findComponent({ name: 'NcRichText' })
 				// note: indices as object keys are on purpose
 				expect(messageEl.props('arguments')).toStrictEqual(expectedRichParameters)
+				return messageEl
 			}
 
 			test('renders mentions', () => {
@@ -379,7 +380,7 @@ describe('Message.vue', () => {
 				)
 			})
 
-			test('renders file previews', () => {
+			test('renders single file preview', () => {
 				const params = {
 					actor: {
 						id: 'alice',
@@ -401,6 +402,71 @@ describe('Message.vue', () => {
 						file: {
 							component: FilePreview,
 							props: params.file,
+						},
+					}
+				)
+			})
+
+			test('renders single file preview with caption', () => {
+				const caption = 'text caption'
+				const params = {
+					actor: {
+						id: 'alice',
+						name: 'Alice',
+						type: 'user',
+					},
+					file: {
+						path: 'some/path',
+						type: 'file',
+					},
+				}
+				const messageEl = renderRichObject(
+					caption,
+					params, {
+						actor: {
+							component: Mention,
+							props: params.actor,
+						},
+						file: {
+							component: FilePreview,
+							props: params.file,
+						},
+					}
+				)
+
+				expect(messageEl.props('text')).toBe(caption + ' {file}')
+			})
+
+			test('renders multiple file previews', () => {
+				const params = {
+					actor: {
+						id: 'alice',
+						name: 'Alice',
+						type: 'user',
+					},
+					'file-1': {
+						path: 'some/path',
+						type: 'file',
+					},
+					'file-2': {
+						path: 'some/path',
+						type: 'file',
+					},
+				}
+				renderRichObject(
+					'{file-1} {file-2}',
+					params, {
+						actor: {
+							component: Mention,
+							props: params.actor,
+						},
+						'file-1': {
+							component: FilePreview,
+							props: params['file-1'],
+						},
+						'file-2': {
+							component: FilePreview,
+							props: params['file-2'],
 						},
 					}
 				)
