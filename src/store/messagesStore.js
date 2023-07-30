@@ -167,7 +167,7 @@ const getters = {
 		return []
 	},
 	message: (state) => (token, id) => {
-		if (state.messages[token][id]) {
+		if (state.messages[token]?.[id]) {
 			return state.messages[token][id]
 		}
 		return {}
@@ -410,8 +410,8 @@ const mutations = {
 		}
 	},
 
-	loadedMessagesOfConversation(state, { token }) {
-		Vue.set(state.loadedMessages, token, true)
+	setLoadedMessagesOfConversation(state, { token, value }) {
+		Vue.set(state.loadedMessages, token, value)
 	},
 
 	// Decreases reaction count for a particular reaction on a message
@@ -700,6 +700,7 @@ const actions = {
 	 */
 	deleteMessages(context, token) {
 		context.commit('deleteMessages', token)
+		context.commit('setLoadedMessagesOfConversation', { token, value: false })
 	},
 
 	/**
@@ -828,7 +829,7 @@ const actions = {
 			})
 		}
 
-		context.commit('loadedMessagesOfConversation', { token })
+		context.commit('setLoadedMessagesOfConversation', { token, value: true })
 
 		if (minimumVisible > 0) {
 			// There are not yet enough visible messages loaded, so fetch another chunk.
@@ -916,7 +917,7 @@ const actions = {
 			})
 		}
 
-		context.commit('loadedMessagesOfConversation', { token })
+		context.commit('setLoadedMessagesOfConversation', { token, value: true })
 
 		if (minimumVisible > 0) {
 			// There are not yet enough visible messages loaded, so fetch another chunk.
@@ -1079,7 +1080,7 @@ const actions = {
 			}
 		}
 
-		context.commit('loadedMessagesOfConversation', { token })
+		context.commit('setLoadedMessagesOfConversation', { token, value: true })
 
 		return response
 	},
