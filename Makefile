@@ -89,6 +89,7 @@ appstore:
 	--exclude=mkdocs.yml \
 	--exclude=Makefile \
 	--exclude=node_modules \
+	--exclude=openapi.json \
 	--exclude=package.json \
 	--exclude=package-lock.json \
 	--exclude=.php-cs-fixer.cache \
