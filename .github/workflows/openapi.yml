@@ -31,7 +31,7 @@ jobs:
 
             -   name: OpenAPI checker
                 run: |
-                    composer exec generate-spec
+                    composer run openapi
                     if [ -n "$(git status --porcelain openapi.json)" ]; then
                         git diff
                         exit 1
