@@ -115,7 +115,7 @@ class BotController extends AEnvironmentAwareController {
 	}
 
 	/**
-	 * Sends a new chat message to the given room.
+	 * Sends a new chat message to the given room
 	 *
 	 * The author and timestamp are automatically set to the current user/guest
 	 * and time.
@@ -178,7 +178,7 @@ class BotController extends AEnvironmentAwareController {
 	}
 
 	/**
-	 * Adds a reaction to a chat message.
+	 * Adds a reaction to a chat message
 	 *
 	 * @param string $token Conversation token
 	 * @param int $messageId ID of the message
@@ -231,7 +231,7 @@ class BotController extends AEnvironmentAwareController {
 	}
 
 	/**
-	 * Deletes a reaction from a chat message.
+	 * Deletes a reaction from a chat message
 	 *
 	 * @param string $token Conversation token
 	 * @param int $messageId ID of the message
