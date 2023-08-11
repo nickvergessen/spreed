@@ -1700,7 +1700,7 @@
         "/ocs/v2.php/apps/spreed/api/{apiVersion}/bot/{token}/message": {
             "post": {
                 "operationId": "bot-send-message",
-                "summary": "Sends a new chat message to the given room.",
+                "summary": "Sends a new chat message to the given room",
                 "description": "The author and timestamp are automatically set to the current user/guest and time.",
                 "tags": [
                     "bot"
@@ -1903,7 +1903,7 @@
         "/ocs/v2.php/apps/spreed/api/{apiVersion}/bot/{token}/reaction/{messageId}": {
             "post": {
                 "operationId": "bot-react",
-                "summary": "Adds a reaction to a chat message.",
+                "summary": "Adds a reaction to a chat message",
                 "tags": [
                     "bot"
                 ],
@@ -2113,7 +2113,7 @@
             },
             "delete": {
                 "operationId": "bot-delete-reaction",
-                "summary": "Deletes a reaction from a chat message.",
+                "summary": "Deletes a reaction from a chat message",
                 "tags": [
                     "bot"
                 ],
