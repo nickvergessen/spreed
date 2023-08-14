@@ -31,6 +31,7 @@ import {
 	PARTICIPANT,
 	WEBINAR,
 } from '../constants.js'
+import BrowserStorage from '../services/BrowserStorage.js'
 import {
 	makePublic,
 	makePrivate,
@@ -339,6 +340,62 @@ const actions = {
 				context.dispatch('updateConversationIfHasChanged', newConversation)
 			}
 		}
+
+		context.dispatch('cacheConversations')
+	},
+
+	/**
+	 * Restores conversations from BrowserStorage and add them to the store state
+	 *
+	 * @param {object} context default store context
+	 */
+	restoreConversations(context) {
+		const cachedConversations = BrowserStorage.getItem('cachedConversations')
+		if (!cachedConversations?.length) {
+			return
+		}
+
+		const conversations = {}
+		JSON.parse(cachedConversations).forEach(conversation => {
+			conversations[conversation.token] = conversation
+		})
+
+		const currentConversations = context.state.conversations
+
+		// Remove conversations that are not in the new list
+		for (const token of Object.keys(currentConversations)) {
+			if (conversations[token] === undefined) {
+				context.dispatch('deleteConversation', token)
+			}
+		}
+
+		// Add new conversations and patch existing ones
+		for (const [token, conversation] of Object.entries(conversations)) {
+			// Check if the conversation hasn't been added already
+			if (currentConversations[token] === undefined) {
+				context.dispatch('addConversation', conversation)
+			} else {
+				context.dispatch('updateConversationIfHasChanged', conversation)
+			}
+		}
+
+		console.debug('Conversations have been restored from BrowserStorage')
+	},
+
+	/**
+	 * Save conversations to BrowserStorage from the store state
+	 *
+	 * @param {object} context default store context
+	 */
+	cacheConversations(context) {
+		const conversations = context.getters.conversationsList
+		if (!conversations.length) {
+			return
+		}
+
+		const serializedConversations = JSON.stringify(conversations)
+		BrowserStorage.setItem('cachedConversations', serializedConversations)
+		console.debug(`Conversations were saved to BrowserStorage. Estimated object size: ${serializedConversations.length / 1000} kB`)
 	},
 
 	/**

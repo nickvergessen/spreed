@@ -410,6 +410,10 @@ export default {
 			this.abortSearch()
 		})
 
+		// Restore last fetched conversations from browser storage,
+		// before updated ones come from server
+		this.$store.dispatch('restoreConversations')
+
 		this.fetchConversations()
 	},
 
