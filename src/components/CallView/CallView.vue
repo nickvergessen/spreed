@@ -362,6 +362,13 @@ export default {
 		},
 	},
 	watch: {
+		'localCallParticipantModel.attributes.peerId'(newValue, previousValue) {
+			const index = this.screens.indexOf(previousValue)
+			if (index !== -1) {
+				this.screens.splice(index, 1, newValue)
+			}
+		},
+
 		localScreen(localScreen) {
 			this._setScreenAvailable(localCallParticipantModel.attributes.peerId, localScreen)
 		},
