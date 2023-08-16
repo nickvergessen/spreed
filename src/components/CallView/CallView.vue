@@ -365,7 +365,7 @@ export default {
 		'localCallParticipantModel.attributes.peerId'(newValue, previousValue) {
 			const index = this.screens.indexOf(previousValue)
 			if (index !== -1) {
-				this.screens.splice(index, 1, newValue)
+				this.screens[index] = newValue
 			}
 		},
 
