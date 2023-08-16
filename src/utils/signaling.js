@@ -149,10 +149,12 @@ Signaling.Base.prototype.setSettings = function(settings) {
 
 	this.settings = settings
 
-	const pendingUpdateSettingsPromise = this._pendingUpdateSettingsPromise
-	delete this._pendingUpdateSettingsPromise
+	if (this._pendingUpdateSettingsPromise) {
+		const pendingUpdateSettingsPromise = this._pendingUpdateSettingsPromise
+		delete this._pendingUpdateSettingsPromise
 
-	pendingUpdateSettingsPromise.resolve()
+		pendingUpdateSettingsPromise.resolve()
+	}
 }
 
 Signaling.Base.prototype.isNoMcuWarningEnabled = function() {
@@ -1450,14 +1452,16 @@ Signaling.Standalone.prototype.processRoomParticipantsEvent = function(data) {
 Signaling.Standalone.prototype.processErrorTokenExpired = function() {
 	console.info('The signaling token is expired, need to update settings')
 
-	let pendingUpdateSettingsPromiseResolve
-	this._pendingUpdateSettingsPromise = new Promise((resolve, reject) => {
-		// The Promise executor is run even before the Promise constructor has
-		// finished, so "this._pendingUpdateSettingsPromise" is not available
-		// yet.
-		pendingUpdateSettingsPromiseResolve = resolve
-	})
-	this._pendingUpdateSettingsPromise.resolve = pendingUpdateSettingsPromiseResolve
+	if (!this._pendingUpdateSettingsPromise) {
+		let pendingUpdateSettingsPromiseResolve
+		this._pendingUpdateSettingsPromise = new Promise((resolve, reject) => {
+			// The Promise executor is run even before the Promise constructor has
+			// finished, so "this._pendingUpdateSettingsPromise" is not available
+			// yet.
+			pendingUpdateSettingsPromiseResolve = resolve
+		})
+		this._pendingUpdateSettingsPromise.resolve = pendingUpdateSettingsPromiseResolve
+	}
 
 	this._trigger('updateSettings')
 }
