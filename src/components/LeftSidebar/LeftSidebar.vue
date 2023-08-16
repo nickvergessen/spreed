@@ -331,6 +331,8 @@ export default {
 			preventFindingUnread: false,
 			roomListModifiedBefore: 0,
 			forceFullRoomListRefreshAfterXLoops: 0,
+			isFetchingConversations: false,
+			isFetchingConversationsLeader: false,
 			isFocused: false,
 			isFiltered: null,
 		}
@@ -412,15 +414,21 @@ export default {
 
 		// Restore last fetched conversations from browser storage,
 		// before updated ones come from server
-		this.$store.dispatch('restoreConversations')
+		this.restoreConversations()
 
-		this.fetchConversations()
+		this.onFetchingConversationsLeader().then(() => {
+			this.isFetchingConversationsLeader = true
+			this.fetchConversations()
+		})
 	},
 
 	mounted() {
-		// Refreshes the conversations every 30 seconds
+		// TODO update process when '@nextcloud/event-bus' broadcasting between tabs is available
+		// Refreshes the conversations list every 30 seconds
 		this.refreshTimer = window.setInterval(() => {
-			if (!this.isFetchingConversations) {
+			if (!this.isFetchingConversationsLeader) {
+				this.restoreConversations()
+			} else if (!this.isFetchingConversations) {
 				this.fetchConversations()
 			}
 		}, 30000)
@@ -672,14 +680,39 @@ export default {
 				 * Emits a global event that is used in App.vue to update the page title once the
 				 * ( if the current route is a conversation and once the conversations are received)
 				 */
-				EventBus.$emit('conversations-received', {
-					singleConversation: false,
-				})
+				EventBus.$emit('conversations-received', { singleConversation: false })
 				this.isFetchingConversations = false
 			} catch (error) {
 				console.debug('Error while fetching conversations: ', error)
 				this.isFetchingConversations = false
 			}
+		},
+
+		async restoreConversations() {
+			try {
+				await this.$store.dispatch('restoreConversations')
+				this.initialisedConversations = true
+				EventBus.$emit('conversations-received', { singleConversation: false })
+			} catch (error) {
+				console.debug('Error while restoring conversations: ', error)
+			}
+		},
+
+		/**
+		 * Assign the first window, which requested that, a 'fetching leader'.
+		 * It will fetch conversations with defined interval and cache to BrowserStorage
+		 * Other will update list with defined interval from the BrowserStorage
+		 * Once 'leader' is closed, next requested tab will be assigned, and so on
+		 */
+		async onFetchingConversationsLeader() {
+			return new Promise((resolve) => {
+				window.navigator.locks.request('talk:conversations-fetching-leader', () => {
+					resolve()
+
+					// return an infinity promise, resource is blocked until 'leader' tab is closed
+					return new Promise(() => {})
+				})
+			})
 		},
 
 		// Checks whether the conversations list is scrolled all the way to the top

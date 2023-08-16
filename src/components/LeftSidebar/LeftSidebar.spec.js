@@ -26,6 +26,13 @@ jest.mock('../../services/conversationsService', () => ({
 // short-circuit debounce
 jest.mock('debounce', () => jest.fn().mockImplementation(fn => fn))
 
+window.navigator.locks = {
+	request: jest.fn().mockImplementation((name, callback) => {
+		callback()
+		return new Promise(() => {})
+	}),
+}
+
 describe('LeftSidebar.vue', () => {
 	let store
 	let localVue
@@ -38,8 +45,8 @@ describe('LeftSidebar.vue', () => {
 
 	const SEARCH_TERM = 'search'
 
-	const mountComponent = () => {
-		return mount(LeftSidebar, {
+	const mountComponent = async () => {
+		const wrapper = mount(LeftSidebar, {
 			localVue,
 			router,
 			store,
@@ -51,6 +58,8 @@ describe('LeftSidebar.vue', () => {
 				NcModal: true,
 			},
 		})
+		await flushPromises()
+		return wrapper
 	}
 
 	beforeEach(() => {
@@ -129,7 +138,7 @@ describe('LeftSidebar.vue', () => {
 			EventBus.$once('conversations-received', conversationsReceivedEvent)
 			fetchConversationsAction.mockResolvedValueOnce()
 
-			const wrapper = mountComponent()
+			const wrapper = await mountComponent()
 
 			expect(fetchConversationsAction).toHaveBeenCalledWith(expect.anything(), expect.anything())
 			expect(conversationsListMock).toHaveBeenCalled()
@@ -138,14 +147,10 @@ describe('LeftSidebar.vue', () => {
 			expect(conversationListItems).toHaveLength(conversationsList.length)
 
 			expect(wrapper.vm.searchText).toBe('')
-			expect(wrapper.vm.initialisedConversations).toBeFalsy()
-
-			expect(conversationsReceivedEvent).not.toHaveBeenCalled()
-
-			// move on past the fetchConversation call
-			await flushPromises()
-
 			expect(wrapper.vm.initialisedConversations).toBeTruthy()
+
+			expect(conversationsReceivedEvent).toHaveBeenCalled()
+
 			expect(conversationListItems.at(0).props('item')).toStrictEqual(conversationsList[2])
 			expect(conversationListItems.at(1).props('item')).toStrictEqual(conversationsList[0])
 			expect(conversationListItems.at(2).props('item')).toStrictEqual(conversationsList[1])
@@ -156,7 +161,7 @@ describe('LeftSidebar.vue', () => {
 		})
 
 		test('re-fetches conversations every 30 seconds', async () => {
-			const wrapper = mountComponent()
+			const wrapper = await mountComponent()
 			expect(wrapper.exists()).toBeTruthy()
 			expect(fetchConversationsAction).toHaveBeenCalled()
 
@@ -174,7 +179,7 @@ describe('LeftSidebar.vue', () => {
 		})
 
 		test('re-fetches conversations when receiving bus event', async () => {
-			const wrapper = mountComponent()
+			const wrapper = await mountComponent()
 			expect(wrapper.exists()).toBeTruthy()
 			expect(fetchConversationsAction).toHaveBeenCalled()
 
@@ -301,7 +306,7 @@ describe('LeftSidebar.vue', () => {
 				loadStateSettings = loadStateSettingsOverride
 			}
 
-			const wrapper = mountComponent()
+			const wrapper = await mountComponent()
 
 			expect(fetchConversationsAction).toHaveBeenCalledWith(expect.anything(), expect.anything())
 			expect(conversationsListMock).toHaveBeenCalled()
@@ -704,18 +709,18 @@ describe('LeftSidebar.vue', () => {
 			conversationsListMock.mockReturnValue([])
 			fetchConversationsAction.mockResolvedValueOnce()
 		})
-		test('shows new conversation button if user can start conversations', () => {
+		test('shows new conversation button if user can start conversations', async () => {
 			loadStateSettings.start_conversations = true
 
-			const wrapper = mountComponent()
+			const wrapper = await mountComponent()
 			const newConversationbutton = findNcActionButton(wrapper, 'Create a new conversation')
 			expect(newConversationbutton.exists()).toBeTruthy()
 
 		})
-		test('does not show new conversation button if user cannot start conversations', () => {
+		test('does not show new conversation button if user cannot start conversations', async () => {
 			loadStateSettings.start_conversations = false
 
-			const wrapper = mountComponent()
+			const wrapper = await mountComponent()
 			const newConversationbutton = findNcActionButton(wrapper, 'Create a new conversation')
 			expect(newConversationbutton.exists()).toBeFalsy()
 		})
@@ -725,7 +730,7 @@ describe('LeftSidebar.vue', () => {
 		conversationsListMock.mockImplementation(() => [])
 		const eventHandler = jest.fn()
 		subscribe('show-settings', eventHandler)
-		const wrapper = mountComponent()
+		const wrapper = await mountComponent()
 
 		const button = wrapper.find('.settings-button')
 		expect(button.exists()).toBeTruthy()
