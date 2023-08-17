@@ -295,16 +295,34 @@ export default class VirtualBackground extends TrackSinkSource {
 		this._outputStream = null
 	}
 
+	/**
+	 * Gets the virtual background properties.
+	 *
+	 * @return {object} undefined if WebAssembly is not supported, an object
+	 *         with the virtual background properties otherwise.
+	 */
 	getVirtualBackground() {
+		if (!this.isAvailable()) {
+			return undefined
+		}
+
 		return this._jitsiStreamBackgroundEffect.getVirtualBackground()
 	}
 
 	/**
+	 * Sets the virtual background properties.
+	 *
+	 * Nothing is set if the virtual background is not available.
+	 *
 	 * @param {object} virtualBackground the virtual background properties; see
 	 *        JitsiStreamBackgroundEffect.setVirtualBackground().
 	 */
 	setVirtualBackground(virtualBackground) {
-		return this._jitsiStreamBackgroundEffect.setVirtualBackground(virtualBackground)
+		if (!this.isAvailable()) {
+			return
+		}
+
+		this._jitsiStreamBackgroundEffect.setVirtualBackground(virtualBackground)
 	}
 
 }
